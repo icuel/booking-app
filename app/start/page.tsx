@@ -15,7 +15,7 @@ export default function StartPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const emailRedirectTo = 'https://book.あなたのドメイン/auth/callback'
+  const emailRedirectTo = 'https://book.icuel.co.jp/auth/callback'
 
   // 共通：Supabase でマジックリンクを送る関数
   const sendMagicLink = async (targetEmail: string) => {
