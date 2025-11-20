@@ -452,7 +452,7 @@ export default function OnboardPage() {
       </div>
 
       {/* 相談対象者の年代（自分自身以外のときだけ表示） */}
-      {consultTargetType !== 'SELF' && (
+      {consultTargetType && consultTargetType !== 'SELF' && (
         <div style={{ marginBottom: 16 }}>
           <p>その方のおおよその年代をお選びください。</p>
           <div>
