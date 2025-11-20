@@ -12,9 +12,21 @@ export async function POST(req: Request) {
       lastNameKana,
       firstNameKana,
       postalCode,
+      ageBand,
+      consultTargetType,
+      consultTargetRelationOther,
     } = await req.json()
 
-    if (!email || !lastName || !firstName || !lastNameKana || !firstNameKana || !postalCode) {
+    if (
+      !email ||
+      !lastName ||
+      !firstName ||
+      !lastNameKana ||
+      !firstNameKana ||
+      !postalCode ||
+      !ageBand ||
+      !consultTargetType
+    ) {
       return NextResponse.json(
         { error: '必須項目が不足しています' },
         { status: 400 },
@@ -31,11 +43,17 @@ export async function POST(req: Request) {
     const body = {
       properties: {
         email,
-        lastname: lastName,          // HubSpot標準「姓」
-        firstname: firstName,        // HubSpot標準「名」
-        zip: postalCode,             // 郵便番号（標準プロパティ）
-        lastname_kana: lastNameKana, // カスタムプロパティ（ステップ0で作成）
-        firstname_kana: firstNameKana,
+        lastname: lastName,          // 姓
+        firstname: firstName,        // 名
+        zip: postalCode,             // 郵便番号
+        lastname_kana: lastNameKana, // カスタム: 姓（フリガナ）
+        firstname_kana: firstNameKana, // カスタム: 名（フリガナ）
+        age_band: ageBand,             // カスタム: 年代
+        consult_target_type: consultTargetType, // カスタム: 誰の相談か
+        // その他親族の関係は、空文字なら送らなくてもよい
+        ...(consultTargetRelationOther
+          ? { consult_target_relation_other: consultTargetRelationOther }
+          : {}),
       },
     }
 
