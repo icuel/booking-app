@@ -15,6 +15,7 @@ export async function POST(req: Request) {
       ageBand,
       consultTargetType,
       consultTargetRelationOther,
+      subjectAgeBandTemp, // ★ 追加
     } = await req.json()
 
     if (
@@ -25,13 +26,15 @@ export async function POST(req: Request) {
       !firstNameKana ||
       !postalCode ||
       !ageBand ||
-      !consultTargetType
+      !consultTargetType ||
+      !subjectAgeBandTemp
     ) {
       return NextResponse.json(
         { error: '必須項目が不足しています' },
         { status: 400 },
       )
     }
+
 
     if (!HUBSPOT_TOKEN) {
       return NextResponse.json(
@@ -43,19 +46,20 @@ export async function POST(req: Request) {
     const body = {
       properties: {
         email,
-        lastname: lastName,          // 姓
-        firstname: firstName,        // 名
-        zip: postalCode,             // 郵便番号
-        lastname_kana: lastNameKana, // カスタム: 姓（フリガナ）
-        firstname_kana: firstNameKana, // カスタム: 名（フリガナ）
-        age_band: ageBand,             // カスタム: 年代
-        consult_target_type: consultTargetType, // カスタム: 誰の相談か
-        // その他親族の関係は、空文字なら送らなくてもよい
+        lastname: lastName,
+        firstname: firstName,
+        zip: postalCode,
+        lastname_kana: lastNameKana,
+        firstname_kana: firstNameKana,
+        age_band: ageBand,
+        consult_target_type: consultTargetType,
         ...(consultTargetRelationOther
           ? { consult_target_relation_other: consultTargetRelationOther }
           : {}),
+        subject_age_band_temp: subjectAgeBandTemp, // ★ Contact側の一時項目
       },
     }
+
 
     const hsRes = await fetch('https://api.hubapi.com/crm/v3/objects/contacts', {
       method: 'POST',
