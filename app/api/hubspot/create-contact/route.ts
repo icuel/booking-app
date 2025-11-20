@@ -5,11 +5,18 @@ const HUBSPOT_TOKEN = process.env.HUBSPOT_ACCESS_TOKEN
 
 export async function POST(req: Request) {
   try {
-    const { email, name, postalCode } = await req.json()
+    const {
+      email,
+      lastName,
+      firstName,
+      lastNameKana,
+      firstNameKana,
+      postalCode,
+    } = await req.json()
 
-    if (!email || !name || !postalCode) {
+    if (!email || !lastName || !firstName || !lastNameKana || !firstNameKana || !postalCode) {
       return NextResponse.json(
-        { error: 'email / name / postalCode は必須です' },
+        { error: '必須項目が不足しています' },
         { status: 400 },
       )
     }
@@ -21,13 +28,14 @@ export async function POST(req: Request) {
       )
     }
 
-    // 氏名は雑に firstname に全部入れる例
-    // postalCode は HubSpot デフォルトの zip プロパティに入れる
     const body = {
       properties: {
         email,
-        firstname: name,
-        zip: postalCode,
+        lastname: lastName,          // HubSpot標準「姓」
+        firstname: firstName,        // HubSpot標準「名」
+        zip: postalCode,             // 郵便番号（標準プロパティ）
+        lastname_kana: lastNameKana, // カスタムプロパティ（ステップ0で作成）
+        firstname_kana: firstNameKana,
       },
     }
 
