@@ -35,13 +35,14 @@ export default function PostAuthPage() {
           throw new Error(json.error || 'HubSpot への問い合わせに失敗しました')
         }
 
-        if (json.exists) {
-          // 既存会員 → そのまま予約画面へ
-          router.replace('/book')
+       if (json.exists) {
+          // 既存会員 → 相談対象を聞く画面へ
+          router.replace('/session')
         } else {
-          // 新規会員 → onboard へ
+          // 新規会員 → 基本情報＋相談対象を聞く画面へ
           router.replace('/onboard')
         }
+
       } catch (err: any) {
         console.error(err)
         setStatus('error')
