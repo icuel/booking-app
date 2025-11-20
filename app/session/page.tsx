@@ -201,7 +201,7 @@ export default function SessionPage() {
         {consultTargetType && consultTargetType !== 'SELF' && (
           <div style={{ marginBottom: 16 }}>
             <p>その方のおおよその年代をお選びください。</p>
-            <div>
+              <div>
               <label>
                 <input
                   type="radio"
@@ -260,17 +260,65 @@ export default function SessionPage() {
                 />{' '}
                 75〜79歳
               </label>
+            </div>          
+            <div>
+              <label>
+                <input
+                  type="radio"
+                  name="targetAgeBand"
+                  value="AGE_80_84"
+                  checked={targetAgeBand === 'AGE_80_84'}
+                  onChange={(e) => setTargetAgeBand(e.target.value)}
+                />{' '}
+                80〜84歳
+              </label>
             </div>
             <div>
               <label>
                 <input
                   type="radio"
                   name="targetAgeBand"
-                  value="AGE_80_PLUS"
-                  checked={targetAgeBand === 'AGE_80_PLUS'}
+                  value="AGE_85_89"
+                  checked={targetAgeBand === 'AGE_85_89'}
                   onChange={(e) => setTargetAgeBand(e.target.value)}
                 />{' '}
-                80歳以上
+                85〜89歳
+              </label>
+            </div>
+            <div>
+              <label>
+                <input
+                  type="radio"
+                  name="targetAgeBand"
+                  value="AGE_90_94"
+                  checked={targetAgeBand === 'AGE_90_94'}
+                  onChange={(e) => setTargetAgeBand(e.target.value)}
+                />{' '}
+                90〜94歳
+              </label>
+            </div>
+            <div>
+              <label>
+                <input
+                  type="radio"
+                  name="targetAgeBand"
+                  value="AGE_95_99"
+                  checked={targetAgeBand === 'AGE_95_99'}
+                  onChange={(e) => setTargetAgeBand(e.target.value)}
+                />{' '}
+                95〜99歳
+              </label>
+            </div>
+            <div>
+              <label>
+                <input
+                  type="radio"
+                  name="targetAgeBand"
+                  value="AGE_100_PLUS"
+                  checked={targetAgeBand === 'AGE_100_PLUS'}
+                  onChange={(e) => setTargetAgeBand(e.target.value)}
+                />{' '}
+                100歳以上
               </label>
             </div>
             <div>
