@@ -9,33 +9,24 @@ export default function AuthCallbackPage() {
   const [message, setMessage] = useState('認証処理中です…')
 
   useEffect(() => {
-    // 1回セッション取得してみる（すでにログイン済みなら即リダイレクト）
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) {
-        const email = data.session.user.email
-        if (email && typeof window !== 'undefined') {
-          localStorage.setItem('authedEmail', email)
-        }
-        router.replace('/book')
-      }
-    })
+    const run = async () => {
+      const { data } = await supabase.auth.getSession()
 
-    // その上で、authイベントも待ち受ける
-    const { data } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) {
-        const email = session.user.email
-        if (email && typeof window !== 'undefined') {
-          localStorage.setItem('authedEmail', email)
-        }
-        router.replace('/book')
-      } else if (event === 'SIGNED_OUT') {
+      if (!data.session) {
         setMessage('認証に失敗しました。最初からやり直してください。')
+        return
       }
-    })
 
-    return () => {
-      data.subscription.unsubscribe()
+      const email = data.session.user.email
+      if (email && typeof window !== 'undefined') {
+        localStorage.setItem('authedEmail', email)
+      }
+
+      // 認証OK → HubSpot判定用のページへ
+      router.replace('/post-auth')
     }
+
+    run()
   }, [router])
 
   return (
