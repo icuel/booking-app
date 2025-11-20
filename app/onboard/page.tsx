@@ -111,6 +111,7 @@ export default function OnboardPage() {
         ageBand,                   // 追加
         consultTargetType,         // 追加
         consultTargetRelationOther // 追加
+        subjectAgeBandTemp,
       }),
     })
 
