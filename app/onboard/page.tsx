@@ -24,6 +24,9 @@ export default function OnboardPage() {
   const [lastNameKanaRaw, setLastNameKanaRaw] = useState('')
   const [firstNameKanaRaw, setFirstNameKanaRaw] = useState('')
   const [postalCode, setPostalCode] = useState('')
+  const [ageBand, setAgeBand] = useState<string>('') // 年代
+  const [consultTargetType, setConsultTargetType] = useState<string>('') // 誰の相談か
+  const [consultTargetRelationOther, setConsultTargetRelationOther] = useState<string>('') // その他親族の関係（任意）
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -49,6 +52,16 @@ export default function OnboardPage() {
 
   if (!email) {
     setError('メールアドレスが取得できません。最初からやり直してください。')
+    return
+  }
+
+  if (!ageBand) {
+  setError('年代を選択してください')
+  return
+  }
+
+  if (!consultTargetType) {
+    setError('今回のご相談がどなたについてかを選択してください')
     return
   }
 
@@ -81,6 +94,9 @@ export default function OnboardPage() {
         lastNameKana: lastnameKana,
         firstNameKana: firstnameKana,
         postalCode,
+        ageBand,                   // 追加
+        consultTargetType,         // 追加
+        consultTargetRelationOther // 追加
       }),
     })
 
@@ -190,6 +206,237 @@ export default function OnboardPage() {
         </label>
       </div>
 
+      {/* 年代 */}
+      <div style={{ marginBottom: 16 }}>
+        <p>年代<span style={{ color: 'red' }}>※</span></p>
+        <div>
+          <label>
+            <input
+              type="radio"
+              name="ageBand"
+              value="UNDER_59"
+              checked={ageBand === 'UNDER_59'}
+              onChange={(e) => setAgeBand(e.target.value)}
+            />{' '}
+            〜59歳
+          </label>
+        </div>
+        <div>
+          <label>
+            <input
+              type="radio"
+              name="ageBand"
+              value="AGE_60_64"
+              checked={ageBand === 'AGE_60_64'}
+              onChange={(e) => setAgeBand(e.target.value)}
+            />{' '}
+            60〜64歳
+          </label>
+        </div>
+        <div>
+          <label>
+            <input
+              type="radio"
+              name="ageBand"
+              value="AGE_65_69"
+              checked={ageBand === 'AGE_65_69'}
+              onChange={(e) => setAgeBand(e.target.value)}
+            />{' '}
+            65〜69歳
+          </label>
+        </div>
+        <div>
+          <label>
+            <input
+              type="radio"
+              name="ageBand"
+              value="AGE_70_74"
+              checked={ageBand === 'AGE_70_74'}
+              onChange={(e) => setAgeBand(e.target.value)}
+            />{' '}
+            70〜74歳
+          </label>
+        </div>
+        <div>
+          <label>
+            <input
+              type="radio"
+              name="ageBand"
+              value="AGE_75_79"
+              checked={ageBand === 'AGE_75_79'}
+              onChange={(e) => setAgeBand(e.target.value)}
+            />{' '}
+            75〜79歳
+          </label>
+        </div>
+        <div>
+          <label>
+            <input
+              type="radio"
+              name="ageBand"
+              value="AGE_80_84"
+              checked={ageBand === 'AGE_80_84'}
+              onChange={(e) => setAgeBand(e.target.value)}
+            />{' '}
+            80〜84歳
+          </label>
+        </div>
+        <div>
+          <label>
+            <input
+              type="radio"
+              name="ageBand"
+              value="AGE_85_89"
+              checked={ageBand === 'AGE_85_89'}
+              onChange={(e) => setAgeBand(e.target.value)}
+            />{' '}
+            85〜89歳
+          </label>
+        </div>
+        <div>
+          <label>
+            <input
+              type="radio"
+              name="ageBand"
+              value="AGE_90_94"
+              checked={ageBand === 'AGE_90_94'}
+              onChange={(e) => setAgeBand(e.target.value)}
+            />{' '}
+            90〜94歳
+          </label>
+        </div>
+        <div>
+          <label>
+            <input
+              type="radio"
+              name="ageBand"
+              value="AGE_95_99"
+              checked={ageBand === 'AGE_95_99'}
+              onChange={(e) => setAgeBand(e.target.value)}
+            />{' '}
+            95〜99歳
+          </label>
+        </div>
+        <div>
+          <label>
+            <input
+              type="radio"
+              name="ageBand"
+              value="AGE_100_PLUS"
+              checked={ageBand === 'AGE_100_PLUS'}
+              onChange={(e) => setAgeBand(e.target.value)}
+            />{' '}
+            100歳以上
+          </label>
+        </div>   
+        <div>
+          <label>
+            <input
+              type="radio"
+              name="ageBand"
+              value="NO_ANSWER"
+              checked={ageBand === 'NO_ANSWER'}
+              onChange={(e) => setAgeBand(e.target.value)}
+            />{' '}
+            回答しない
+          </label>
+        </div>
+      </div>
+
+      {/* 誰の相談か */}
+      <div style={{ marginBottom: 16 }}>
+        <p>今回のご相談は、どなたについての内容ですか？<span style={{ color: 'red' }}>※</span></p>
+        <div>
+          <label>
+            <input
+              type="radio"
+              name="consultTarget"
+              value="SELF"
+              checked={consultTargetType === 'SELF'}
+              onChange={(e) => setConsultTargetType(e.target.value)}
+            />{' '}
+            自分自身
+          </label>
+        </div>
+        <div>
+          <label>
+            <input
+              type="radio"
+              name="consultTarget"
+              value="SPOUSE"
+              checked={consultTargetType === 'SPOUSE'}
+              onChange={(e) => setConsultTargetType(e.target.value)}
+            />{' '}
+            配偶者・パートナー
+          </label>
+        </div>
+        <div>
+          <label>
+            <input
+              type="radio"
+              name="consultTarget"
+              value="PARENT"
+              checked={consultTargetType === 'PARENT'}
+              onChange={(e) => setConsultTargetType(e.target.value)}
+            />{' '}
+            親（実父母・義父母）
+          </label>
+        </div>
+        <div>
+          <label>
+            <input
+              type="radio"
+              name="consultTarget"
+              value="GRANDPARENT"
+              checked={consultTargetType === 'GRANDPARENT'}
+              onChange={(e) => setConsultTargetType(e.target.value)}
+            />{' '}
+            祖父母
+          </label>
+        </div>
+        <div>
+          <label>
+            <input
+              type="radio"
+              name="consultTarget"
+              value="CHILD"
+              checked={consultTargetType === 'CHILD'}
+              onChange={(e) => setConsultTargetType(e.target.value)}
+            />{' '}
+            子
+          </label>
+        </div>
+        <div>
+          <label>
+            <input
+              type="radio"
+              name="consultTarget"
+              value="OTHER_RELATIVE"
+              checked={consultTargetType === 'OTHER_RELATIVE'}
+              onChange={(e) => setConsultTargetType(e.target.value)}
+            />{' '}
+            その他の親族
+          </label>
+        </div>
+
+        {/* その他の親族を選んだときだけ自由記述を出す */}
+        {consultTargetType === 'OTHER_RELATIVE' && (
+          <div style={{ marginTop: 8 }}>
+            <label>
+              差し支えなければ、その方とのご関係を教えてください（任意）<br />
+              <input
+                type="text"
+                value={consultTargetRelationOther}
+                onChange={(e) => setConsultTargetRelationOther(e.target.value)}
+                placeholder="例：叔父、いとこ、兄 など"
+                style={{ padding: 8, width: '100%', boxSizing: 'border-box' }}
+              />
+            </label>
+          </div>
+        )}
+      </div>
+
+      
       <button type="submit" disabled={loading}>
         {loading ? '送信中…' : '登録して予約に進む'}
       </button>
