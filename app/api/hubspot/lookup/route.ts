@@ -1,61 +1,66 @@
-// app/api/hubspot/lookup/route.ts
 import { NextResponse } from 'next/server'
 
-const HUBSPOT_TOKEN = process.env.HUBSPOT_ACCESS_TOKEN
+const HUBSPOT_BASE_URL = 'https://api.hubapi.com'
 
 export async function POST(req: Request) {
   try {
-    const { email } = await req.json()
+    const body = await req.json()
+    const email = body?.email as string | undefined
 
     if (!email) {
       return NextResponse.json(
-        { error: 'email が指定されていません' },
+        { ok: false, error: 'email が指定されていません' },
         { status: 400 },
       )
     }
 
-    if (!HUBSPOT_TOKEN) {
+    const token = process.env.HUBSPOT_ACCESS_TOKEN
+    if (!token) {
       return NextResponse.json(
-        { error: 'HUBSPOT_ACCESS_TOKEN が設定されていません' },
+        { ok: false, error: 'HUBSPOT_ACCESS_TOKEN が設定されていません' },
         { status: 500 },
       )
     }
 
-    const url =
-      'https://api.hubapi.com/crm/v3/objects/contacts/' +
-      encodeURIComponent(email) +
-      '?idProperty=email'
-
-    const hsRes = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${HUBSPOT_TOKEN}`,
-        'Content-Type': 'application/json',
+    const res = await fetch(
+      `${HUBSPOT_BASE_URL}/crm/v3/objects/contacts/${encodeURIComponent(
+        email,
+      )}?idProperty=email`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       },
-    })
+    )
 
-    // 404 = 該当メールのコンタクトなし
-    if (hsRes.status === 404) {
-      return NextResponse.json({ exists: false })
+    if (res.status === 404) {
+      // 見つからない＝新規
+      return NextResponse.json({ ok: true, exists: false })
     }
 
-    if (!hsRes.ok) {
-      const text = await hsRes.text()
-      console.error('HubSpot lookup error:', text)
+    if (!res.ok) {
+      const text = await res.text()
+      console.error('HubSpot lookup error:', res.status, text)
       return NextResponse.json(
-        { error: 'HubSpot lookup failed' },
+        { ok: false, error: 'HubSpot からの取得に失敗しました' },
         { status: 500 },
       )
     }
 
-    const data = await hsRes.json()
+    const data = await res.json()
 
     return NextResponse.json({
+      ok: true,
       exists: true,
       id: data.id,
       properties: data.properties ?? {},
     })
-  } catch (e) {
-    console.error(e)
-    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+  } catch (err: any) {
+    console.error('lookup error', err)
+    return NextResponse.json(
+      { ok: false, error: err?.message ?? 'サーバーエラーが発生しました' },
+      { status: 500 },
+    )
   }
 }
