@@ -1,118 +1,138 @@
 import { NextResponse } from 'next/server'
 
-const HUBSPOT_TOKEN = process.env.HUBSPOT_ACCESS_TOKEN
+const HUBSPOT_BASE_URL = 'https://api.hubapi.com'
+
+const PIPELINE_ID =
+  process.env.HUBSPOT_TICKET_PIPELINE_ID || '0'
+const STAGE_PENDING =
+  process.env.HUBSPOT_TICKET_STAGE_PENDING || '1'
+
+const SUBJECT_TARGET_TYPE_PROP =
+  process.env.HUBSPOT_SUBJECT_TARGET_TYPE_PROP || 'subject_target_type'
+const SUBJECT_AGE_BAND_PROP =
+  process.env.HUBSPOT_SUBJECT_AGE_BAND_PROP || 'subject_age_band'
 
 export async function POST(req: Request) {
   try {
-    const {
-      email,
-      consultTargetType,
-      consultTargetRelationOther,
-      subjectAgeBandTemp,
-    } = await req.json()
+    const body = await req.json()
 
-    if (!email || !consultTargetType) {
+    const email = body?.email as string | undefined
+    const consultTargetType = body?.consultTargetType as string | undefined
+    const subjectAgeBand = body?.subjectAgeBand as string | undefined
+
+    if (!email) {
       return NextResponse.json(
-        { error: '必須項目が不足しています' },
+        { ok: false, error: 'email が指定されていません' },
         { status: 400 },
       )
     }
 
-    if (!HUBSPOT_TOKEN) {
+    if (!consultTargetType || !subjectAgeBand) {
       return NextResponse.json(
-        { error: 'HUBSPOT_ACCESS_TOKEN が設定されていません' },
+        {
+          ok: false,
+          error: 'consultTargetType と subjectAgeBand は必須です',
+        },
+        { status: 400 },
+      )
+    }
+
+    const token = process.env.HUBSPOT_ACCESS_TOKEN
+    if (!token) {
+      return NextResponse.json(
+        { ok: false, error: 'HUBSPOT_ACCESS_TOKEN が設定されていません' },
         { status: 500 },
       )
     }
 
-    // 1. email から Contact を取得
-    const getUrl =
-      'https://api.hubapi.com/crm/v3/objects/contacts/' +
-      encodeURIComponent(email) +
-      '?idProperty=email&properties=age_band,subject_age_band_temp,consult_target_type,consult_target_relation_other'
-
-    const getRes = await fetch(getUrl, {
-      headers: {
-        Authorization: `Bearer ${HUBSPOT_TOKEN}`,
-        'Content-Type': 'application/json',
+    // 1. email から Contact を取得（既存前提）
+    const contactRes = await fetch(
+      `${HUBSPOT_BASE_URL}/crm/v3/objects/contacts/${encodeURIComponent(
+        email,
+      )}?idProperty=email`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       },
-    })
+    )
 
-    if (getRes.status === 404) {
+    if (contactRes.status === 404) {
       return NextResponse.json(
-        { error: '該当するコンタクトが見つかりません' },
+        { ok: false, error: '該当するコンタクトが見つかりませんでした' },
         { status: 404 },
       )
     }
 
-    if (!getRes.ok) {
-      const text = await getRes.text()
-      console.error('HubSpot get contact error:', text)
+    if (!contactRes.ok) {
+      const text = await contactRes.text()
+      console.error('HubSpot contact lookup error:', contactRes.status, text)
       return NextResponse.json(
-        { error: 'HubSpot contact lookup failed' },
+        { ok: false, error: 'HubSpot からコンタクト取得に失敗しました' },
         { status: 500 },
       )
     }
 
-    const contactData = await getRes.json()
-    const contactId = contactData.id
-    const props = contactData.properties || {}
+    const contact = await contactRes.json()
+    const contactId = contact.id as string
 
-    const contactAgeBand: string | undefined = props.age_band
+    // 2. Ticket を「予約未確定」で作成
+    const subject = '仮予約 - オンライン相談'
 
-    // 2. 最終的な対象者年代を決める
-    let finalSubjectAgeBand: string | undefined
-
-    if (consultTargetType === 'SELF') {
-      // 自分自身の相談なら、Contact.age_band を使う（なければ NO_ANSWER）
-      finalSubjectAgeBand = contactAgeBand || 'NO_ANSWER'
-    } else {
-      // 家族・親族の相談なら、クライアントから送られてきた subjectAgeBandTemp を使う
-      if (!subjectAgeBandTemp) {
-        return NextResponse.json(
-          { error: '相談対象者の年代が指定されていません' },
-          { status: 400 },
-        )
-      }
-      finalSubjectAgeBand = subjectAgeBandTemp
-    }
-
-    // 3. Contact を更新（consult_target_type / relation_other / subject_age_band_temp）
-    const updateBody: any = {
-      properties: {
-        consult_target_type: consultTargetType,
-        subject_age_band_temp: finalSubjectAgeBand,
-      },
-    }
-
-    if (consultTargetRelationOther) {
-      updateBody.properties.consult_target_relation_other = consultTargetRelationOther
-    }
-
-    const updateRes = await fetch(
-      `https://api.hubapi.com/crm/v3/objects/contacts/${contactId}`,
+    const ticketRes = await fetch(
+      `${HUBSPOT_BASE_URL}/crm/v3/objects/tickets`,
       {
-        method: 'PATCH',
+        method: 'POST',
         headers: {
-          Authorization: `Bearer ${HUBSPOT_TOKEN}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updateBody),
+        body: JSON.stringify({
+          properties: {
+            hs_pipeline: PIPELINE_ID,
+            hs_pipeline_stage: STAGE_PENDING,
+            subject,
+            [SUBJECT_TARGET_TYPE_PROP]: consultTargetType,
+            [SUBJECT_AGE_BAND_PROP]: subjectAgeBand,
+          },
+          associations: [
+            {
+              to: { id: contactId },
+              types: [
+                {
+                  associationCategory: 'HUBSPOT_DEFINED',
+                  associationTypeId: 16,
+                },
+              ],
+            },
+          ],
+        }),
       },
     )
 
-    if (!updateRes.ok) {
-      const text = await updateRes.text()
-      console.error('HubSpot update contact error:', text)
+    if (!ticketRes.ok) {
+      const text = await ticketRes.text()
+      console.error('HubSpot ticket create error:', ticketRes.status, text)
       return NextResponse.json(
-        { error: 'HubSpot contact update failed' },
+        { ok: false, error: 'HubSpot へのチケット作成に失敗しました' },
         { status: 500 },
       )
     }
 
-    return NextResponse.json({ ok: true })
-  } catch (e) {
-    console.error(e)
-    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+    const ticket = await ticketRes.json()
+
+    return NextResponse.json({
+      ok: true,
+      contactId,
+      ticketId: ticket.id,
+      hsTicketId: ticket.properties?.hs_ticket_id ?? null,
+    })
+  } catch (err: any) {
+    console.error('update-session error', err)
+    return NextResponse.json(
+      { ok: false, error: err?.message ?? 'サーバーエラーが発生しました' },
+      { status: 500 },
+    )
   }
 }
