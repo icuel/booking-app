@@ -9,7 +9,7 @@ export default function SessionPage() {
   const [email, setEmail] = useState<string | null>(null)
 
   const [consultTargetType, setConsultTargetType] = useState<string>('') // 誰の相談か
-  const [subjectAgeBand, setSubjectAgeBand] = useState<string>('') // 相談対象者の年代（SELF の場合もここ）
+  const [subjectAgeBand, setSubjectAgeBand] = useState<string>('') // 相談対象者の年代
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -51,11 +51,6 @@ export default function SessionPage() {
     setLoading(true)
 
     try {
-      // ★ここで「既存コンタクト向けの初回 Ticket」を作成する API に変更
-      //   サーバー側:
-      //   - email で Contact を検索
-      //   - Ticket を「予約未確定」ステージで作成
-      //   - Ticket.subject_target_type / subject_age_band に以下を保存
       const res = await fetch('/api/hubspot/update-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -72,12 +67,11 @@ export default function SessionPage() {
         throw new Error(data.error || 'セッション情報の登録に失敗しました')
       }
 
-      // ここで hs_ticket_id を保存
-      if (data.hsTicketId) {
-        localStorage.setItem('currentHsTicketId', data.hsTicketId)
+      // ★ ここで HubSpot Ticket の hs_ticket_id を localStorage に保存
+      if (typeof window !== 'undefined' && data.hsTicketId) {
+        window.localStorage.setItem('currentHsTicketId', data.hsTicketId)
       }
 
-      // 登録完了 → 予約画面へ
       router.replace('/book')
     } catch (err: any) {
       console.error(err)
