@@ -22,7 +22,7 @@ export default function BookPage() {
   useEffect(() => {
     let scriptEl: HTMLScriptElement | null = null
 
-    const initWidget = (email: string, ticketId: string | null) => {
+    const initWidget = (email: string, ticketId: string) => {
       if (!window.SimplybookWidget) return
 
       new window.SimplybookWidget({
@@ -49,15 +49,13 @@ export default function BookPage() {
             // ここで Supabase の認証済みメールアドレスを SimplyBook に渡す
             client: {
               email,
+              // 名前欄には TicketID を入れる（ユーザーからはCSSで非表示）
+              name: ticketId,
             },
-            // カスタムフィールドに HubSpot TicketID を埋め込む（値があれば）
-            ...(ticketId
-              ? {
-                  customfields: {
-                    [HUBSPOT_TICKET_FIELD_ID]: ticketId,
-                  },
-                }
-              : {}),
+            // カスタムフィールドに HubSpot TicketID を保存
+            customfields: {
+              [HUBSPOT_TICKET_FIELD_ID]: ticketId,
+            },
           },
         },
       })
@@ -75,7 +73,7 @@ export default function BookPage() {
 
       setSessionEmail(email)
 
-      // 2. /onboard or /session で保存した hs_ticket_id を取得
+      // 2. /onboard または /session で保存した hs_ticket_id を取得
       const storedTicketId =
         typeof window !== 'undefined'
           ? window.localStorage.getItem('currentHsTicketId')
@@ -105,7 +103,7 @@ export default function BookPage() {
 
     run()
 
-    // クリーンアップ（ページ離脱時にスクリプトタグを削除）
+    // クリーンアップ
     return () => {
       if (scriptEl && scriptEl.parentNode) {
         scriptEl.parentNode.removeChild(scriptEl)
@@ -137,25 +135,6 @@ export default function BookPage() {
 
       {/* ウィジェット本体はスクリプトがこのコンテナ内に iframe を挿入します */}
       <div id="sb-booking-widget" />
-
-      {/* 
-        メモ：
-        widget_type: 'iframe' の場合、iframe 内部のフォーム（名前／電話／メール）は
-        このコンポーネント側の CSS からは直接隠せません（クロスオリジンのため）。
-        そのため「完全に非表示」にしたい場合は、SimplyBook 管理画面側で
-        クライアントフィールドの表示／必須設定を調整する必要があります。
-        
-        もし将来 SimplyBook 側の設定を「iframe ではない埋め込み」に変えた場合には、
-        以下のグローバルCSSで .sb-client-* クラスを非表示にすることもできます。
-      */}
-      <style jsx global>{`
-        /* 非iframe型ウィジェット用の予備CSS（現在の iframe には効きません） */
-        .sb-client-email,
-        .sb-client-name,
-        .sb-client-phone {
-          display: none !important;
-        }
-      `}</style>
     </div>
   )
 }
