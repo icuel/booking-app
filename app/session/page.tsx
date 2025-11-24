@@ -72,11 +72,10 @@ export default function SessionPage() {
         throw new Error(data.error || 'セッション情報の登録に失敗しました')
       }
 
-      // 必要に応じて Ticket ID や hs_ticket_id を保存して /book で使う
-      // 例:
-      // if (data.ticketId) {
-      //   localStorage.setItem('currentTicketId', data.ticketId)
-      // }
+      // ここで hs_ticket_id を保存
+      if (data.hsTicketId) {
+        localStorage.setItem('currentHsTicketId', data.hsTicketId)
+      }
 
       // 登録完了 → 予約画面へ
       router.replace('/book')
