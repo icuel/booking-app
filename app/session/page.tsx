@@ -56,7 +56,7 @@ export default function SessionPage() {
       //   - email で Contact を検索
       //   - Ticket を「予約未確定」ステージで作成
       //   - Ticket.subject_target_type / subject_age_band に以下を保存
-      const res = await fetch('/api/hubspot/create-session-ticket', {
+      const res = await fetch('/api/hubspot/update-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
