@@ -21,10 +21,10 @@ export default function OnboardPage() {
   const [email, setEmail] = useState<string | null>(null)
   const [lastName, setLastName] = useState('')
   const [firstName, setFirstName] = useState('')
-  const [kanaFullNameRaw, setKanaFullNameRaw] = useState('') // カナ氏名（1項目）
+  const [kanaFullNameRaw, setKanaFullNameRaw] = useState('')
   const [postalCode, setPostalCode] = useState('')
   const [consultTargetType, setConsultTargetType] = useState<string>('') // 誰の相談か
-  const [subjectAgeBand, setSubjectAgeBand] = useState<string>('') // 相談対象者の年代（自分自身の場合もここに入れる）
+  const [subjectAgeBand, setSubjectAgeBand] = useState<string>('') // 相談対象者の年代
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -70,7 +70,9 @@ export default function OnboardPage() {
 
     // カタカナだけになっているかチェック（スペースは許可）
     if (!katakanaRegex.test(kanaFullName)) {
-      setError('カナ氏名はカタカナ（全角）で入力してください（ひらがなも可、姓と名の間にスペース可）')
+      setError(
+        'カナ氏名はカタカナ（全角）で入力してください（ひらがなも可、姓と名の間にスペース可）',
+      )
       return
     }
 
@@ -83,11 +85,6 @@ export default function OnboardPage() {
     setLoading(true)
 
     try {
-      // ★ここで Contact と Ticket を同時に作成する API を叩く想定
-      //   サーバー側では:
-      //   - email で Contact を作成/取得
-      //   - Ticket を「予約未確定」ステージで作成
-      //   - Ticket の subject_target_type / subject_age_band に以下の値を保存
       const res = await fetch('/api/hubspot/create-contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -95,7 +92,7 @@ export default function OnboardPage() {
           email,
           lastName,
           firstName,
-          kanaFullName,     // HubSpot 側では kana_full_name にマッピング
+          kanaFullName,
           postalCode,
           consultTargetType,
           subjectAgeBand,
@@ -108,9 +105,9 @@ export default function OnboardPage() {
         throw new Error(data.error || 'HubSpot への登録に失敗しました')
       }
 
-      // ここで hs_ticket_id を保存
-      if (data.hsTicketId) {
-        localStorage.setItem('currentHsTicketId', data.hsTicketId)
+      // ★ ここで HubSpot Ticket の hs_ticket_id を localStorage に保存
+      if (typeof window !== 'undefined' && data.hsTicketId) {
+        window.localStorage.setItem('currentHsTicketId', data.hsTicketId)
       }
 
       router.replace('/book')
@@ -168,7 +165,7 @@ export default function OnboardPage() {
           </label>
         </div>
 
-        {/* カナ氏名（ひらがな/カタカナどちらでもOKだが最終的にカタカナに変換） */}
+        {/* カナ氏名 */}
         <div style={{ marginBottom: 12 }}>
           <label>
             カナ氏名（ひらがな or カタカナ、姓と名の間はスペース可）<br />
@@ -278,7 +275,6 @@ export default function OnboardPage() {
               その他の親族
             </label>
           </div>
-          {/* ★「その他の親族」の自由記述は削除 */}
         </div>
 
         {/* 相談対象者の年代（常に表示、自分自身の場合もここに入れる） */}
