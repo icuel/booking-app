@@ -108,15 +108,10 @@ export default function OnboardPage() {
         throw new Error(data.error || 'HubSpot への登録に失敗しました')
       }
 
-      // 必要であればここで ticketId / hs_ticket_id を localStorage に保存して
-      // /book で SimplyBook に渡すのに使う
-      // 例:
-      // if (data.ticketId) {
-      //   localStorage.setItem('currentTicketId', data.ticketId)
-      // }
-      // if (data.hsTicketId) {
-      //   localStorage.setItem('currentHsTicketId', data.hsTicketId)
-      // }
+      // ここで hs_ticket_id を保存
+      if (data.hsTicketId) {
+        localStorage.setItem('currentHsTicketId', data.hsTicketId)
+      }
 
       router.replace('/book')
     } catch (err: any) {
