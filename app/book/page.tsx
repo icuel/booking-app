@@ -51,11 +51,7 @@ export default function BookPage() {
               email,
               // 名前欄には TicketID を入れる（ユーザーからはCSSで非表示）
               name: ticketId,
-            },
-            // カスタムフィールドに HubSpot TicketID を保存
-            customfields: {
-              [HUBSPOT_TICKET_FIELD_ID]: ticketId,
-            },
+            },            
           },
         },
       })
