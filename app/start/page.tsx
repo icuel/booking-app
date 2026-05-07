@@ -54,6 +54,7 @@ export default function StartPage() {
             <p style={descriptionStyle}>
               {email} 宛に、予約手続き用の認証メールを送信しました。
               メールを開いて、本文内のリンクをクリックしてください。
+              リンクは、この手続きを開始した端末・ブラウザで開いてください。
             </p>
 
             <div style={noticeBoxStyle}>
@@ -93,6 +94,9 @@ export default function StartPage() {
             予約手続きに進むため、まずはメールアドレスをご入力ください。
             入力いただいたメールアドレス宛に、予約手続き用の認証メールを自動送信します。
             メール本文内のリンクを押すと、予約手続きを続けられます。
+            
+            認証メールのリンクは、現在お使いのブラウザで開いてください。
+            別の端末や別のブラウザで開いた場合、途中まで入力した情報を引き継げないことがあります。
           </p>
 
           <form onSubmit={handleSubmit} style={formStyle}>
