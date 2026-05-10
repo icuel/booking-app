@@ -1,65 +1,148 @@
-import Image from "next/image";
+import Link from 'next/link'
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main style={pageStyle}>
+      <div style={containerStyle}>
+        <header style={headerStyle}>
+          <div style={serviceNameStyle}>自立暮らしコンシェルジュ</div>
+          <div style={serviceSubStyle}>オンライン相談予約</div>
+        </header>
+
+        <section style={cardStyle}>
+          <h1 style={titleStyle}>オンライン相談のご予約</h1>
+
+          <p style={descriptionStyle}>
+            自立暮らしコンシェルジュは、退院後の生活、住まいの見直し、
+            公的支援制度の調べ方など、これからの暮らしについて考えたいことを
+            整理するためのオンライン相談です。
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
+
+          <p style={descriptionStyle}>
+            予約手続きに進む場合は、下のボタンからメールアドレスの確認へお進みください。
+          </p>
+
+          <Link href="/start" style={primaryButtonStyle}>
+            予約手続きに進む
+          </Link>
+
+          <div style={noticeBoxStyle}>
+            <p style={noticeTitleStyle}>ご利用前の確認</p>
+            <p style={noticeTextStyle}>
+              予約手続きでは、メールアドレスの確認を行います。
+              入力いただいたメールアドレス宛に届く認証メールのリンクを開くと、
+              手続きを続けられます。
+            </p>
+          </div>
+        </section>
+
+        <footer style={footerStyle}>
+          <a href="https://kuracon.icuel.jp" style={footerLinkStyle}>
+            サービスサイトへ戻る
           </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+        </footer>
+      </div>
+    </main>
+  )
+}
+
+const pageStyle: React.CSSProperties = {
+  minHeight: '100vh',
+  background: '#f7f7f4',
+  padding: '40px 16px',
+  boxSizing: 'border-box',
+}
+
+const containerStyle: React.CSSProperties = {
+  maxWidth: 640,
+  margin: '0 auto',
+}
+
+const headerStyle: React.CSSProperties = {
+  marginBottom: 24,
+}
+
+const serviceNameStyle: React.CSSProperties = {
+  fontSize: 20,
+  fontWeight: 700,
+  color: '#222222',
+  letterSpacing: '0.03em',
+}
+
+const serviceSubStyle: React.CSSProperties = {
+  marginTop: 4,
+  fontSize: 14,
+  color: '#666666',
+}
+
+const cardStyle: React.CSSProperties = {
+  background: '#ffffff',
+  borderRadius: 16,
+  padding: 28,
+  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.06)',
+  border: '1px solid #e5e5e0',
+}
+
+const titleStyle: React.CSSProperties = {
+  margin: 0,
+  fontSize: 28,
+  lineHeight: 1.4,
+  color: '#222222',
+}
+
+const descriptionStyle: React.CSSProperties = {
+  marginTop: 16,
+  marginBottom: 0,
+  fontSize: 15,
+  lineHeight: 1.8,
+  color: '#444444',
+}
+
+const primaryButtonStyle: React.CSSProperties = {
+  display: 'block',
+  width: '100%',
+  marginTop: 24,
+  padding: '14px 18px',
+  borderRadius: 999,
+  background: '#2f5d50',
+  color: '#ffffff',
+  fontSize: 16,
+  fontWeight: 700,
+  textAlign: 'center',
+  textDecoration: 'none',
+  boxSizing: 'border-box',
+}
+
+const noticeBoxStyle: React.CSSProperties = {
+  marginTop: 20,
+  padding: 16,
+  borderRadius: 12,
+  background: '#f8f8f5',
+  border: '1px solid #e5e5dd',
+}
+
+const noticeTitleStyle: React.CSSProperties = {
+  margin: 0,
+  fontSize: 14,
+  fontWeight: 700,
+  color: '#333333',
+}
+
+const noticeTextStyle: React.CSSProperties = {
+  marginTop: 8,
+  marginBottom: 0,
+  fontSize: 13,
+  lineHeight: 1.7,
+  color: '#666666',
+}
+
+const footerStyle: React.CSSProperties = {
+  marginTop: 20,
+  textAlign: 'center',
+  fontSize: 13,
+}
+
+const footerLinkStyle: React.CSSProperties = {
+  color: '#555555',
+  textDecoration: 'underline',
 }
